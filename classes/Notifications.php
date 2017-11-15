@@ -61,6 +61,10 @@ class Notifications
             $notification->id = 'n' . uniqid() . 'x' . base_convert(rand(0, 999999999), 10, 16);
         }
 
+        if ($notification->dateCreated === null) {
+            $notification->dateCreated = time();
+        }
+
         if ($app->hooks->exists('notificationSend')) {
             $preventDefault = false;
             $app->hooks->execute('notificationSend', $notification, $preventDefault);
@@ -102,6 +106,7 @@ class Notifications
         $notification->text = isset($data['text']) ? $data['text'] : null;
         $notification->priority = isset($data['priority']) ? $data['priority'] : 3;
         $notification->status = isset($data['status']) ? $data['status'] : 'unread';
+        $notification->dateCreated = isset($data['dateCreated']) ? $data['dateCreated'] : null;
         return $notification;
     }
 

@@ -14,6 +14,7 @@ namespace IvoPetkov\BearFrameworkAddons\Notifications;
  * @property string|null $text The text content of the notification.
  * @property int $priority Notification priority: Available values: 1 (highest), 2 (high), 3 (normal), 4 (low), 5 (lowest).
  * @property string $status Notification status: Available values: read and unread.
+ * @property ?int $dateCreated Notification creation timestamp.
  */
 class Notification
 {
@@ -53,6 +54,9 @@ class Notification
                 }
                 return $value;
             }
+        ]);
+        $this->defineProperty('dateCreated', [
+            'type' => '?int'
         ]);
     }
 
