@@ -27,10 +27,11 @@ class Notifications
      * Constructs a new notification and returns it.
      * 
      * @param ?string $id The notification ID.
+     * @param ?string $title The notification title.
      * @param ?string $text The notification text.
      * @return \BearFramework\Notifications\Notification
      */
-    public function make(string $id = null, string $text = null): Notification
+    public function make(string $id = null, string $title = null, string $text = null): Notification
     {
         if (self::$newNotificationCache === null) {
             self::$newNotificationCache = new Notification();
@@ -38,6 +39,9 @@ class Notifications
         $notification = clone(self::$newNotificationCache);
         if ($id !== null) {
             $notification->id = $id;
+        }
+        if ($title !== null) {
+            $notification->title = $title;
         }
         if ($text !== null) {
             $notification->text = $text;
@@ -59,14 +63,6 @@ class Notifications
 
         if ($notification->id === null) {
             $notification->id = 'n' . uniqid() . 'x' . base_convert(rand(0, 999999999), 10, 16);
-        }
-
-        if ($notification->dateCreated === null) {
-            $notification->dateCreated = time();
-        }
-
-        if ($notification->maxAge === null) {
-            $notification->maxAge = 30 * 86400;
         }
 
         if ($app->hooks->exists('notificationSend')) {
@@ -91,7 +87,7 @@ class Notifications
         $app->data->set($dataItem);
     }
 
-    public function get($recipientID, $notificationID)//: ?Notification
+    public function get(string $recipientID, string $notificationID): ?Notification
     {
         $app = App::get();
 
@@ -102,7 +98,7 @@ class Notifications
         return $this->constructNotificationFromRawData($notificationRawData);
     }
 
-    private function constructNotificationFromRawData($rawData)
+    private function constructNotificationFromRawData(string $rawData): Notification
     {
         $notification = $this->make();
         $data = json_decode($rawData, true);
@@ -117,33 +113,35 @@ class Notifications
         return $notification;
     }
 
-    public function markAsRead($recipientID, $notificationID)
+    public function markAsRead(string $recipientID, string $notificationID): void
     {
         $this->setStatus($recipientID, $notificationID, 'read');
     }
 
-    public function markAsUnread($recipientID, $notificationID)
+    public function markAsUnread(string $recipientID, string $notificationID): void
     {
         $this->setStatus($recipientID, $notificationID, 'unread');
     }
 
-    private function setStatus($recipientID, $notificationID, $status)
+    private function setStatus(string $recipientID, string $notificationID, string $status): void
     {
         $notification = $this->get($recipientID, $notificationID);
         if ($notification instanceof Notification) {
-            $notification->status = $status;
-            $this->set($recipientID, $notification);
+            if ($notification->status !== $status) {
+                $notification->status = $status;
+                $this->set($recipientID, $notification);
+            }
         }
     }
 
-    public function delete($recipientID, $notificationID)
+    public function delete(string $recipientID, string $notificationID): void
     {
         $app = App::get();
 
         $app->data->delete($this->getNotificationDataKey($recipientID, $notificationID));
     }
 
-    public function deleteAll($recipientID)
+    public function deleteAll(string $recipientID): void
     {
         $app = App::get();
         $notificationDataItems = $app->data->getList()->filterBy('key', $this->getRecipientDataKeyPrefix($recipientID), 'startWith');
@@ -152,7 +150,7 @@ class Notifications
         }
     }
 
-    public function getList($recipientID)
+    public function getList(string $recipientID): \IvoPetkov\DataList
     {
         $app = App::get();
 
@@ -169,7 +167,7 @@ class Notifications
         });
     }
 
-    public function getUnreadCount($recipientID)
+    public function getUnreadCount(string $recipientID): int
     {
         $list = $this->getList($recipientID);
         $count = 0;
@@ -181,7 +179,7 @@ class Notifications
         return $count;
     }
 
-    private function deleteIfOld(string $recipientID, Notification $notification)
+    private function deleteIfOld(string $recipientID, Notification $notification): bool
     {
         if ($notification->dateCreated + $notification->maxAge < time()) {
             $this->delete($recipientID, $notification->id);
@@ -190,13 +188,13 @@ class Notifications
         return false;
     }
 
-    private function getRecipientDataKeyPrefix($recipientID)
+    private function getRecipientDataKeyPrefix(string $recipientID): string
     {
         $recipientIDMD5 = md5($recipientID);
         return 'notifications/recipients/recipient/' . substr($recipientIDMD5, 0, 2) . '/' . substr($recipientIDMD5, 2, 2) . '/' . $recipientIDMD5 . '/';
     }
 
-    private function getNotificationDataKey($recipientID, $notificationID)
+    private function getNotificationDataKey(string $recipientID, string $notificationID): string
     {
         $recipientIDMD5 = md5($recipientID);
         $notificationIDMD5 = md5($notificationID);
