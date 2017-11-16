@@ -65,6 +65,10 @@ class Notifications
             $notification->dateCreated = time();
         }
 
+        if ($notification->maxAge === null) {
+            $notification->maxAge = 30 * 86400;
+        }
+
         if ($app->hooks->exists('notificationSend')) {
             $preventDefault = false;
             $app->hooks->execute('notificationSend', $notification, $preventDefault);
@@ -87,7 +91,7 @@ class Notifications
         $app->data->set($dataItem);
     }
 
-    public function get($recipientID, $notificationID): ?Notification
+    public function get($recipientID, $notificationID)//: ?Notification
     {
         $app = App::get();
 
@@ -107,6 +111,7 @@ class Notifications
         $notification->priority = isset($data['priority']) ? $data['priority'] : 3;
         $notification->status = isset($data['status']) ? $data['status'] : 'unread';
         $notification->dateCreated = isset($data['dateCreated']) ? $data['dateCreated'] : null;
+        $notification->maxAge = isset($data['maxAge']) ? $data['maxAge'] : 30 * 86400;
         return $notification;
     }
 
@@ -136,6 +141,15 @@ class Notifications
         $app->data->delete($this->getNotificationDataKey($recipientID, $notificationID));
     }
 
+    public function deleteAll($recipientID)
+    {
+        $app = App::get();
+        $notificationDataItems = $app->data->getList()->filterBy('key', $this->getRecipientDataKeyPrefix($recipientID), 'startWith');
+        foreach ($notificationDataItems as $notificationDataItem) {
+            $app->data->delete($notificationDataItem->key);
+        }
+    }
+
     public function getList($recipientID)
     {
         $app = App::get();
@@ -144,7 +158,10 @@ class Notifications
             $result = [];
             $notificationDataItems = $app->data->getList()->filterBy('key', $this->getRecipientDataKeyPrefix($recipientID), 'startWith');
             foreach ($notificationDataItems as $notificationDataItem) {
-                $result[] = $this->constructNotificationFromRawData($notificationDataItem->value);
+                $notification = $this->constructNotificationFromRawData($notificationDataItem->value);
+                if (!$this->deleteIfOld($recipientID, $notification)) {
+                    $result[] = $notification;
+                }
             }
             return $result;
         });
@@ -152,16 +169,23 @@ class Notifications
 
     public function getUnreadCount($recipientID)
     {
-        $app = App::get();
+        $list = $this->getList($recipientID);
         $count = 0;
-        $notificationDataItems = $app->data->getList()->filterBy('key', $this->getRecipientDataKeyPrefix($recipientID), 'startWith');
-        foreach ($notificationDataItems as $notificationDataItem) {
-            $notificationData = json_decode($notificationDataItem->value, true);
-            if (is_array($notificationData) && isset($notificationData['status']) && $notificationData['status'] === 'unread') {
+        foreach ($list as $notification) {
+            if ($notification->status === 'unread') {
                 $count++;
             }
         }
         return $count;
+    }
+
+    private function deleteIfOld(string $recipientID, Notification $notification)
+    {
+        if ($notification->dateCreated + $notification->maxAge < time()) {
+            $this->delete($recipientID, $notification->id);
+            return true;
+        }
+        return false;
     }
 
     private function getRecipientDataKeyPrefix($recipientID)

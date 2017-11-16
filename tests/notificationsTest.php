@@ -85,4 +85,44 @@ class NotificationsTest extends BearFrameworkAddonTestCase
         $this->assertTrue($app->notifications->getUnreadCount('recipient1') === 2);
     }
 
+    /**
+     * 
+     */
+    public function testMaxAge()
+    {
+        $app = $this->getApp();
+
+        $this->assertTrue($app->notifications->getUnreadCount('recipient1') === 0);
+
+        $notification = $app->notifications->make('id1', 'Hello 1');
+        $notification->maxAge = 3;
+        $app->notifications->send('recipient1', $notification);
+
+        $this->assertTrue($app->notifications->getUnreadCount('recipient1') === 1);
+        sleep(4);
+        $this->assertTrue($app->notifications->getUnreadCount('recipient1') === 0);
+    }
+
+    /**
+     * 
+     */
+    public function testDeleteAll()
+    {
+        $app = $this->getApp();
+
+        $this->assertTrue($app->notifications->getUnreadCount('recipient1') === 0);
+
+        $notification = $app->notifications->make(null, 'Hello 1');
+        $app->notifications->send('recipient1', $notification);
+
+        $notification = $app->notifications->make(null, 'Hello 2');
+        $app->notifications->send('recipient1', $notification);
+
+        $this->assertTrue($app->notifications->getUnreadCount('recipient1') === 2);
+
+        $app->notifications->deleteAll('recipient1');
+
+        $this->assertTrue($app->notifications->getUnreadCount('recipient1') === 0);
+    }
+
 }

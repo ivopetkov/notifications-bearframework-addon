@@ -15,6 +15,7 @@ namespace IvoPetkov\BearFrameworkAddons\Notifications;
  * @property int $priority Notification priority: Available values: 1 (highest), 2 (high), 3 (normal), 4 (low), 5 (lowest).
  * @property string $status Notification status: Available values: read and unread.
  * @property ?int $dateCreated Notification creation timestamp.
+ * @property int $maxAge Notification max age (in seconds).
  */
 class Notification
 {
@@ -57,6 +58,10 @@ class Notification
         ]);
         $this->defineProperty('dateCreated', [
             'type' => '?int'
+        ]);
+        
+        $this->defineProperty('maxAge', [
+            'type' => 'int'
         ]);
     }
 
