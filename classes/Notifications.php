@@ -113,6 +113,7 @@ class Notifications
         $notification->status = isset($data['status']) ? $data['status'] : 'unread';
         $notification->dateCreated = isset($data['dateCreated']) ? $data['dateCreated'] : null;
         $notification->maxAge = isset($data['maxAge']) ? $data['maxAge'] : 30 * 86400;
+        $notification->data = isset($data['data']) ? $data['data'] : [];
         return $notification;
     }
 
