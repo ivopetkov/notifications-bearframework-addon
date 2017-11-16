@@ -107,6 +107,7 @@ class Notifications
         $notification = $this->make();
         $data = json_decode($rawData, true);
         $notification->id = isset($data['id']) ? $data['id'] : null;
+        $notification->title = isset($data['title']) ? $data['title'] : null;
         $notification->text = isset($data['text']) ? $data['text'] : null;
         $notification->priority = isset($data['priority']) ? $data['priority'] : 3;
         $notification->status = isset($data['status']) ? $data['status'] : 'unread';
