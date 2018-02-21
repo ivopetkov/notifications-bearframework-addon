@@ -20,22 +20,24 @@ class NotificationsTest extends BearFrameworkAddonTestCase
     {
         $app = $this->getApp();
 
-        $notification = $app->notifications->make('id1', 'Hello 1');
+        $notification = $app->notifications->make('Hello 1');
         $app->notifications->send('recipient1', $notification);
-        $savedNotification = $app->notifications->get('recipient1', 'id1');
+        $notificationID = $notification->id;
+
+        $savedNotification = $app->notifications->get('recipient1', $notificationID);
         $this->assertTrue($notification->toJSON() === $savedNotification->toJSON());
         $this->assertTrue($savedNotification->status === 'unread');
 
-        $app->notifications->markAsRead('recipient1', 'id1');
-        $savedNotification = $app->notifications->get('recipient1', 'id1');
+        $app->notifications->markAsRead('recipient1', $notificationID);
+        $savedNotification = $app->notifications->get('recipient1', $notificationID);
         $this->assertTrue($savedNotification->status === 'read');
 
-        $app->notifications->markAsUnread('recipient1', 'id1');
-        $savedNotification = $app->notifications->get('recipient1', 'id1');
+        $app->notifications->markAsUnread('recipient1', $notificationID);
+        $savedNotification = $app->notifications->get('recipient1', $notificationID);
         $this->assertTrue($savedNotification->status === 'unread');
 
-        $app->notifications->delete('recipient1', 'id1');
-        $savedNotification = $app->notifications->get('recipient1', 'id1');
+        $app->notifications->delete('recipient1', $notificationID);
+        $savedNotification = $app->notifications->get('recipient1', $notificationID);
         $this->assertTrue($savedNotification === null);
     }
 
@@ -46,15 +48,15 @@ class NotificationsTest extends BearFrameworkAddonTestCase
     {
         $app = $this->getApp();
 
-        $notification = $app->notifications->make('id1', 'Hello 1');
+        $notification = $app->notifications->make('Hello 1');
         $app->notifications->send('recipient1', $notification);
 
-        $notification = $app->notifications->make('id2', 'Hello 2');
+        $notification = $app->notifications->make('Hello 2');
         $app->notifications->send('recipient2', $notification);
 
         $list = $app->notifications->getList('recipient1');
         $this->assertTrue($list->length === 1);
-        $this->assertTrue($list[0]->id === 'id1');
+        $this->assertTrue($list[0]->title === 'Hello 1');
     }
 
     /**
@@ -66,21 +68,22 @@ class NotificationsTest extends BearFrameworkAddonTestCase
 
         $this->assertTrue($app->notifications->getUnreadCount('recipient1') === 0);
 
-        $notification = $app->notifications->make('id1', 'Hello 1');
+        $notification = $app->notifications->make('Hello 1');
         $app->notifications->send('recipient1', $notification);
+        $notification1ID = $notification->id;
 
         $this->assertTrue($app->notifications->getUnreadCount('recipient1') === 1);
 
-        $notification = $app->notifications->make('id2', 'Hello 2');
+        $notification = $app->notifications->make('Hello 2');
         $app->notifications->send('recipient1', $notification);
 
         $this->assertTrue($app->notifications->getUnreadCount('recipient1') === 2);
 
-        $app->notifications->markAsRead('recipient1', 'id1');
+        $app->notifications->markAsRead('recipient1', $notification1ID);
 
         $this->assertTrue($app->notifications->getUnreadCount('recipient1') === 1);
 
-        $app->notifications->markAsUnread('recipient1', 'id1');
+        $app->notifications->markAsUnread('recipient1', $notification1ID);
 
         $this->assertTrue($app->notifications->getUnreadCount('recipient1') === 2);
     }
@@ -94,7 +97,7 @@ class NotificationsTest extends BearFrameworkAddonTestCase
 
         $this->assertTrue($app->notifications->getUnreadCount('recipient1') === 0);
 
-        $notification = $app->notifications->make('id1', 'Hello 1');
+        $notification = $app->notifications->make('Hello 1');
         $notification->maxAge = 3;
         $app->notifications->send('recipient1', $notification);
 
@@ -112,10 +115,10 @@ class NotificationsTest extends BearFrameworkAddonTestCase
 
         $this->assertTrue($app->notifications->getUnreadCount('recipient1') === 0);
 
-        $notification = $app->notifications->make(null, 'Hello 1');
+        $notification = $app->notifications->make('Hello 1');
         $app->notifications->send('recipient1', $notification);
 
-        $notification = $app->notifications->make(null, 'Hello 2');
+        $notification = $app->notifications->make('Hello 2');
         $app->notifications->send('recipient1', $notification);
 
         $this->assertTrue($app->notifications->getUnreadCount('recipient1') === 2);

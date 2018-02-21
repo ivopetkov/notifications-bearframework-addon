@@ -26,20 +26,16 @@ class Notifications
     /**
      * Constructs a new notification and returns it.
      * 
-     * @param ?string $id The notification ID.
      * @param ?string $title The notification title.
      * @param ?string $text The notification text.
      * @return \BearFramework\Notifications\Notification
      */
-    public function make(string $id = null, string $title = null, string $text = null): Notification
+    public function make(string $title = null, string $text = null): Notification
     {
         if (self::$newNotificationCache === null) {
             self::$newNotificationCache = new Notification();
         }
         $notification = clone(self::$newNotificationCache);
-        if ($id !== null) {
-            $notification->id = $id;
-        }
         if ($title !== null) {
             $notification->title = $title;
         }
@@ -65,19 +61,24 @@ class Notifications
             $notification->id = 'n' . uniqid() . 'x' . base_convert(rand(0, 999999999), 10, 16);
         }
 
-        if ($app->hooks->exists('notificationSend')) {
-            $preventDefault = false;
-            $app->hooks->execute('notificationSend', $notification, $preventDefault);
-            if ($preventDefault) {
-                return;
-            }
-        }
+//        if ($app->hooks->exists('notificationSend')) {
+//            $preventDefault = false;
+//            $app->hooks->execute('notificationSend', $notification, $preventDefault);
+//            if ($preventDefault) {
+//                return;
+//            }
+//        }
 
         $this->set($recipientID, $notification);
 
-        $app->hooks->execute('notificationSent', $notification);
+        //$app->hooks->execute('notificationSent', $notification);
     }
 
+    /**
+     * 
+     * @param string $recipientID
+     * @param Notification $notification
+     */
     private function set(string $recipientID, Notification $notification): void
     {
         $app = App::get();
@@ -87,6 +88,12 @@ class Notifications
         $app->data->set($dataItem);
     }
 
+    /**
+     * 
+     * @param string $recipientID
+     * @param string $notificationID
+     * @return Notification|null
+     */
     public function get(string $recipientID, string $notificationID): ?Notification
     {
         $app = App::get();
@@ -98,6 +105,11 @@ class Notifications
         return $this->constructNotificationFromRawData($notificationRawData);
     }
 
+    /**
+     * 
+     * @param string $rawData
+     * @return Notification
+     */
     private function constructNotificationFromRawData(string $rawData): Notification
     {
         $notification = $this->make();
@@ -108,22 +120,38 @@ class Notifications
         $notification->priority = isset($data['priority']) ? $data['priority'] : 3;
         $notification->status = isset($data['status']) ? $data['status'] : 'unread';
         $notification->dateCreated = isset($data['dateCreated']) ? $data['dateCreated'] : null;
-        $notification->maxAge = isset($data['maxAge']) ? $data['maxAge'] : 30 * 86400;
+        $notification->maxAge = isset($data['maxAge']) ? $data['maxAge'] : 40 * 86400;
         $notification->data = isset($data['data']) ? $data['data'] : [];
         return $notification;
     }
 
+    /**
+     * 
+     * @param string $recipientID
+     * @param string $notificationID
+     */
     public function markAsRead(string $recipientID, string $notificationID): void
     {
-        $this->setStatus($recipientID, $notificationID, 'read');
+        $this->setReadStatus($recipientID, $notificationID, 'read');
     }
 
+    /**
+     * 
+     * @param string $recipientID
+     * @param string $notificationID
+     */
     public function markAsUnread(string $recipientID, string $notificationID): void
     {
-        $this->setStatus($recipientID, $notificationID, 'unread');
+        $this->setReadStatus($recipientID, $notificationID, 'unread');
     }
 
-    private function setStatus(string $recipientID, string $notificationID, string $status): void
+    /**
+     * 
+     * @param string $recipientID
+     * @param string $notificationID
+     * @param string $status
+     */
+    private function setReadStatus(string $recipientID, string $notificationID, string $status): void
     {
         $notification = $this->get($recipientID, $notificationID);
         if ($notification instanceof Notification) {
@@ -134,6 +162,11 @@ class Notifications
         }
     }
 
+    /**
+     * 
+     * @param string $recipientID
+     * @param string $notificationID
+     */
     public function delete(string $recipientID, string $notificationID): void
     {
         $app = App::get();
@@ -141,6 +174,10 @@ class Notifications
         $app->data->delete($this->getNotificationDataKey($recipientID, $notificationID));
     }
 
+    /**
+     * 
+     * @param string $recipientID
+     */
     public function deleteAll(string $recipientID): void
     {
         $app = App::get();
@@ -150,6 +187,11 @@ class Notifications
         }
     }
 
+    /**
+     * 
+     * @param string $recipientID
+     * @return \IvoPetkov\DataList
+     */
     public function getList(string $recipientID): \IvoPetkov\DataList
     {
         $app = App::get();
@@ -167,6 +209,11 @@ class Notifications
         });
     }
 
+    /**
+     * 
+     * @param string $recipientID
+     * @return int
+     */
     public function getUnreadCount(string $recipientID): int
     {
         $list = $this->getList($recipientID);
@@ -179,6 +226,12 @@ class Notifications
         return $count;
     }
 
+    /**
+     * 
+     * @param string $recipientID
+     * @param Notification $notification
+     * @return bool
+     */
     private function deleteIfOld(string $recipientID, Notification $notification): bool
     {
         if ($notification->dateCreated + $notification->maxAge < time()) {
@@ -188,12 +241,23 @@ class Notifications
         return false;
     }
 
+    /**
+     * 
+     * @param string $recipientID
+     * @return string
+     */
     private function getRecipientDataKeyPrefix(string $recipientID): string
     {
         $recipientIDMD5 = md5($recipientID);
         return 'notifications/recipients/recipient/' . substr($recipientIDMD5, 0, 2) . '/' . substr($recipientIDMD5, 2, 2) . '/' . $recipientIDMD5 . '/';
     }
 
+    /**
+     * 
+     * @param string $recipientID
+     * @param string $notificationID
+     * @return string
+     */
     private function getNotificationDataKey(string $recipientID, string $notificationID): string
     {
         $recipientIDMD5 = md5($recipientID);
