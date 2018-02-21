@@ -135,6 +135,7 @@ class Notifications
         $notification->dateCreated = isset($data['dateCreated']) ? $data['dateCreated'] : null;
         $notification->maxAge = isset($data['maxAge']) ? $data['maxAge'] : 40 * 86400;
         $notification->data = isset($data['data']) ? $data['data'] : [];
+        $notification->onClickURL = isset($data['onClickURL']) ? $data['onClickURL'] : null;
         return $notification;
     }
 

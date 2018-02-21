@@ -19,6 +19,7 @@ namespace IvoPetkov\BearFrameworkAddons\Notifications;
  * @property int $dateCreated Notification creation timestamp.
  * @property int $maxAge Notification max age (in seconds).
  * @property array $data Arbitrary data associated with the notification.
+ * @property string|null $onClickURL Url to open when clicked on the notification.
  */
 class Notification
 {
@@ -79,6 +80,9 @@ class Notification
         ]);
         $this->defineProperty('data', [
             'type' => 'array'
+        ]);
+        $this->defineProperty('onClickURL', [
+            'type' => '?string'
         ]);
     }
 
