@@ -128,4 +128,36 @@ class NotificationsTest extends BearFrameworkAddonTestCase
         $this->assertTrue($app->notifications->getUnreadCount('recipient1') === 0);
     }
 
+    /**
+     * 
+     */
+    public function testType()
+    {
+        $app = $this->getApp();
+
+        $notification = $app->notifications->make('Hello 1');
+        $app->notifications->send('recipient1', $notification);
+
+        $this->assertTrue($app->notifications->getUnreadCount('recipient1') === 1);
+
+        sleep(1);
+        $notification = $app->notifications->make('Hello 2');
+        $notification->type = 'type1';
+        $app->notifications->send('recipient1', $notification);
+
+        $this->assertTrue($app->notifications->getUnreadCount('recipient1') === 2);
+
+        sleep(1);
+        $notification = $app->notifications->make('Hello 3');
+        $notification->type = 'type1';
+        $app->notifications->send('recipient1', $notification);
+
+        $this->assertTrue($app->notifications->getUnreadCount('recipient1') === 2);
+
+        $list = $app->notifications->getList('recipient1')
+                ->sortBy('dateCreated', 'desc');
+        $this->assertTrue($list->length === 2);
+        $this->assertTrue($list[0]->title === 'Hello 3');
+    }
+
 }

@@ -60,6 +60,9 @@ class Notifications
         if ($notification->id === null) {
             $notification->id = 'n' . uniqid() . 'x' . base_convert(rand(0, 999999999), 10, 16);
         }
+        if ($notification->dateCreated === null) {
+            $notification->dateCreated = time();
+        }
 
 //        if ($app->hooks->exists('notificationSend')) {
 //            $preventDefault = false;
@@ -68,6 +71,15 @@ class Notifications
 //                return;
 //            }
 //        }
+
+        if (strlen($notification->type) > 0) {
+            $otherNotifications = $this->getList($recipientID);
+            foreach ($otherNotifications as $otherNotification) {
+                if ((string) $notification->type === (string) $otherNotification->type) {
+                    $this->delete($recipientID, $otherNotification->id);
+                }
+            }
+        }
 
         $this->set($recipientID, $notification);
 
@@ -115,6 +127,7 @@ class Notifications
         $notification = $this->make();
         $data = json_decode($rawData, true);
         $notification->id = isset($data['id']) ? $data['id'] : null;
+        $notification->type = isset($data['type']) ? $data['type'] : null;
         $notification->title = isset($data['title']) ? $data['title'] : null;
         $notification->text = isset($data['text']) ? $data['text'] : null;
         $notification->priority = isset($data['priority']) ? $data['priority'] : 3;
