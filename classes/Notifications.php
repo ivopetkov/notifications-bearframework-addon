@@ -64,13 +64,13 @@ class Notifications
             $notification->dateCreated = time();
         }
 
-//        if ($app->hooks->exists('notificationSend')) {
-//            $preventDefault = false;
-//            $app->hooks->execute('notificationSend', $notification, $preventDefault);
-//            if ($preventDefault) {
-//                return;
-//            }
-//        }
+        if ($app->hooks->exists('notificationSend')) {
+            $preventDefault = false;
+            $app->hooks->execute('notificationSend', $recipientID, $notification, $preventDefault);
+            if ($preventDefault) {
+                return;
+            }
+        }
 
         if (strlen($notification->type) > 0) {
             $otherNotifications = $this->getList($recipientID);
@@ -83,7 +83,7 @@ class Notifications
 
         $this->set($recipientID, $notification);
 
-        //$app->hooks->execute('notificationSent', $notification);
+        $app->hooks->execute('notificationSent', $recipientID, $notification);
     }
 
     /**
