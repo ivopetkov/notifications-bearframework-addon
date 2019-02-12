@@ -13,7 +13,8 @@
     ],
     "require": {
         "php": ">=7.1",
-        "bearframework/bearframework": "0.10.*"
+        "bearframework/bearframework": "0.11.*",
+        "ivopetkov/data-object": "0.6.*"
     },
     "require-dev": {
         "bearframework/addon-tests": "0.1.*",

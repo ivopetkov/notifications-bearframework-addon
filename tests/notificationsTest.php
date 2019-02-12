@@ -55,7 +55,7 @@ class NotificationsTest extends BearFramework\AddonTests\PHPUnitTestCase
         $app->notifications->send('recipient2', $notification);
 
         $list = $app->notifications->getList('recipient1');
-        $this->assertTrue($list->length === 1);
+        $this->assertTrue($list->count() === 1);
         $this->assertTrue($list[0]->title === 'Hello 1');
     }
 
@@ -156,8 +156,51 @@ class NotificationsTest extends BearFramework\AddonTests\PHPUnitTestCase
 
         $list = $app->notifications->getList('recipient1')
                 ->sortBy('dateCreated', 'desc');
-        $this->assertTrue($list->length === 2);
+        $this->assertTrue($list->count() === 2);
         $this->assertTrue($list[0]->title === 'Hello 3');
+    }
+
+    /**
+     * 
+     */
+    public function testEvents()
+    {
+        $app = $this->getApp();
+
+        $log = [];
+
+        $app->notifications
+                ->addEventListener('beforeSendNotification', function(\IvoPetkov\BearFrameworkAddons\Notifications\BeforeSendNotificationEventDetails $details) use (&$log) {
+                    $log[] = 'before-send';
+                    $log[] = $details->recipientID;
+                    $log[] = $details->notification->title;
+                    if ($details->recipientID === 'recipient1') {
+                        $details->preventDefault = true;
+                    }
+                })
+                ->addEventListener('sendNotification', function(\IvoPetkov\BearFrameworkAddons\Notifications\SendNotificationEventDetails $details) use (&$log) {
+                    $log[] = 'send';
+                    $log[] = $details->recipientID;
+                    $log[] = $details->notification->title;
+                });
+
+        $notification = $app->notifications->make('Hello 1');
+        $app->notifications->send('recipient1', $notification);
+
+        $notification = $app->notifications->make('Hello 2');
+        $app->notifications->send('recipient2', $notification);
+
+        $this->assertEquals($log, [
+            "before-send",
+            "recipient1",
+            "Hello 1",
+            "before-send",
+            "recipient2",
+            "Hello 2",
+            "send",
+            "recipient2",
+            "Hello 2"
+        ]);
     }
 
 }

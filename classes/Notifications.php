@@ -18,6 +18,8 @@ use IvoPetkov\BearFrameworkAddons\Notifications\Notification;
 class Notifications
 {
 
+    use \BearFramework\App\EventsTrait;
+
     /**
      *
      */
@@ -64,10 +66,10 @@ class Notifications
             $notification->dateCreated = time();
         }
 
-        if ($app->hooks->exists('notificationSend')) {
-            $preventDefault = false;
-            $app->hooks->execute('notificationSend', $recipientID, $notification, $preventDefault);
-            if ($preventDefault) {
+        if ($this->hasEventListeners('beforeSendNotification')) {
+            $eventDetails = new \IvoPetkov\BearFrameworkAddons\Notifications\BeforeSendNotificationEventDetails($recipientID, $notification);
+            $this->dispatchEvent('beforeSendNotification', $eventDetails);
+            if ($eventDetails->preventDefault) {
                 return;
             }
         }
@@ -83,7 +85,10 @@ class Notifications
 
         $this->set($recipientID, $notification);
 
-        $app->hooks->execute('notificationSent', $recipientID, $notification);
+        if ($this->hasEventListeners('sendNotification')) {
+            $eventDetails = new \IvoPetkov\BearFrameworkAddons\Notifications\SendNotificationEventDetails($recipientID, $notification);
+            $this->dispatchEvent('sendNotification', $eventDetails);
+        }
     }
 
     /**

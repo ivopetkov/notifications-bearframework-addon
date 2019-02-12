@@ -30,60 +30,62 @@ class Notification
 
     function __construct()
     {
-        $this->defineProperty('id', [
-            'type' => '?string'
-        ]);
-        $this->defineProperty('type', [
-            'type' => '?string'
-        ]);
-        $this->defineProperty('title', [
-            'type' => '?string'
-        ]);
-        $this->defineProperty('text', [
-            'type' => '?string'
-        ]);
-        $this->defineProperty('priority', [
-            'type' => 'int',
-            'init' => function() {
-                return 3;
-            },
-            'set' => function($value) {
-                if ($value < 1 || $value > 5) {
-                    throw new Exception('The priority value must be 1 (highest), 2 (high), 3 (normal), 4 (low), 5 (lowest)');
-                }
-                return $value;
-            }
-        ]);
-        $this->defineProperty('status', [
-            'type' => 'string',
-            'init' => function() {
-                return 'unread';
-            },
-            'set' => function($value) {
-                if ($value !== 'read' && $value !== 'unread') {
-                    throw new Exception('The status value must be read or unread');
-                }
-                return $value;
-            }
-        ]);
-        $this->defineProperty('dateCreated', [
-            'type' => 'int',
-            'init' => function() {
-                return time();
-            }
-        ]);
-        $this->defineProperty('maxAge', [
-            'type' => 'int',
-            'init' => function() {
-                return 30 * 86400;
-            }
-        ]);
-        $this->defineProperty('data', [
-            'type' => 'array'
-        ]);
-        $this->defineProperty('clickUrl', [
-            'type' => '?string'
-        ]);
+        $this
+                ->defineProperty('id', [
+                    'type' => '?string'
+                ])
+                ->defineProperty('type', [
+                    'type' => '?string'
+                ])
+                ->defineProperty('title', [
+                    'type' => '?string'
+                ])
+                ->defineProperty('text', [
+                    'type' => '?string'
+                ])
+                ->defineProperty('priority', [
+                    'type' => 'int',
+                    'init' => function() {
+                        return 3;
+                    },
+                    'set' => function($value) {
+                        if ($value < 1 || $value > 5) {
+                            throw new Exception('The priority value must be 1 (highest), 2 (high), 3 (normal), 4 (low), 5 (lowest)');
+                        }
+                        return $value;
+                    }
+                ])
+                ->defineProperty('status', [
+                    'type' => 'string',
+                    'init' => function() {
+                        return 'unread';
+                    },
+                    'set' => function($value) {
+                        if ($value !== 'read' && $value !== 'unread') {
+                            throw new Exception('The status value must be read or unread');
+                        }
+                        return $value;
+                    }
+                ])
+                ->defineProperty('dateCreated', [
+                    'type' => 'int',
+                    'init' => function() {
+                        return time();
+                    }
+                ])
+                ->defineProperty('maxAge', [
+                    'type' => 'int',
+                    'init' => function() {
+                        return 30 * 86400;
+                    }
+                ])
+                ->defineProperty('data', [
+                    'type' => 'array'
+                ])
+                ->defineProperty('clickUrl', [
+                    'type' => '?string'
+                ])
+        ;
     }
 
 }

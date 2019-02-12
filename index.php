@@ -10,11 +10,11 @@
 use BearFramework\App;
 
 $app = App::get();
-$context = $app->context->get(__FILE__);
+$context = $app->contexts->get(__FILE__);
 
 $context->classes
         ->add('IvoPetkov\BearFrameworkAddons\Notifications', 'classes/Notifications.php')
-        ->add('IvoPetkov\BearFrameworkAddons\Notifications\Notification', 'classes/Notifications/Notification.php');
+        ->add('IvoPetkov\BearFrameworkAddons\Notifications\*', 'classes/Notifications/*.php');
 
 $app->shortcuts
         ->add('notifications', function() {
