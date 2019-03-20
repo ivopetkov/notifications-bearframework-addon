@@ -18,7 +18,7 @@ use IvoPetkov\BearFrameworkAddons\Notifications\Notification;
 class Notifications
 {
 
-    use \BearFramework\App\EventsTrait;
+    use \BearFramework\EventsTrait;
 
     /**
      *
