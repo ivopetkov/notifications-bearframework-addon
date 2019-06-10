@@ -19,7 +19,7 @@ namespace IvoPetkov\BearFrameworkAddons\Notifications;
  * @property int $dateCreated Notification creation timestamp.
  * @property int $maxAge Notification max age (in seconds).
  * @property array $data Arbitrary data associated with the notification.
- * @property string|null $clickUrl Url to open when clicked on the notification.
+ * @property string|null $clickURL URL to open when clicked on the notification.
  */
 class Notification
 {
@@ -27,6 +27,8 @@ class Notification
     use \IvoPetkov\DataObjectTrait;
     use \IvoPetkov\DataObjectToArrayTrait;
     use \IvoPetkov\DataObjectToJSONTrait;
+    use \IvoPetkov\DataObjectFromArrayTrait;
+    use \IvoPetkov\DataObjectFromJSONTrait;
 
     function __construct()
     {
@@ -82,7 +84,7 @@ class Notification
                 ->defineProperty('data', [
                     'type' => 'array'
                 ])
-                ->defineProperty('clickUrl', [
+                ->defineProperty('clickURL', [
                     'type' => '?string'
                 ])
         ;

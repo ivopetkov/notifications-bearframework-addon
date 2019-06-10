@@ -57,8 +57,6 @@ class Notifications
      */
     public function send(string $recipientID, Notification $notification): void
     {
-        $app = App::get();
-
         if ($notification->id === null) {
             $notification->id = 'n' . uniqid() . 'x' . base_convert(rand(0, 999999999), 10, 16);
         }
@@ -129,19 +127,11 @@ class Notifications
      */
     private function constructNotificationFromRawData(string $rawData): Notification
     {
-        $notification = $this->make();
         $data = json_decode($rawData, true);
-        $notification->id = isset($data['id']) ? $data['id'] : null;
-        $notification->type = isset($data['type']) ? $data['type'] : null;
-        $notification->title = isset($data['title']) ? $data['title'] : null;
-        $notification->text = isset($data['text']) ? $data['text'] : null;
-        $notification->priority = isset($data['priority']) ? $data['priority'] : 3;
-        $notification->status = isset($data['status']) ? $data['status'] : 'unread';
-        $notification->dateCreated = isset($data['dateCreated']) ? $data['dateCreated'] : null;
-        $notification->maxAge = isset($data['maxAge']) ? $data['maxAge'] : 40 * 86400;
-        $notification->data = isset($data['data']) ? $data['data'] : [];
-        $notification->clickUrl = isset($data['clickUrl']) ? $data['clickUrl'] : null;
-        return $notification;
+        if (isset($data['clickUrl'])) {
+            $data['clickURL'] = $data['clickUrl'];
+        }
+        return Notification::fromArray($data);
     }
 
     /**
@@ -189,7 +179,6 @@ class Notifications
     public function delete(string $recipientID, string $notificationID): void
     {
         $app = App::get();
-
         $app->data->delete($this->getNotificationDataKey($recipientID, $notificationID));
     }
 
@@ -214,7 +203,6 @@ class Notifications
     public function getList(string $recipientID): \IvoPetkov\DataList
     {
         $app = App::get();
-
         return new \IvoPetkov\DataList(function($context) use ($app, $recipientID) {
             $result = [];
             $notificationDataItems = $app->data->getList()->filterBy('key', $this->getRecipientDataKeyPrefix($recipientID), 'startWith');
