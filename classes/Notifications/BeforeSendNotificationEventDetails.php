@@ -27,21 +27,19 @@ class BeforeSendNotificationEventDetails
     public function __construct(string $recipientID, \IvoPetkov\BearFrameworkAddons\Notifications\Notification $notification)
     {
         $this
-                ->defineProperty('recipientID', [
-                    'type' => 'string'
-                ])
-                ->defineProperty('notification', [
-                    'type' => \IvoPetkov\BearFrameworkAddons\Notifications\Notification::class
-                ])
-                ->defineProperty('preventDefault', [
-                    'type' => 'bool',
-                    'init' => function() {
-                        return false;
-                    }
-                ])
-        ;
+            ->defineProperty('recipientID', [
+                'type' => 'string'
+            ])
+            ->defineProperty('notification', [
+                'type' => \IvoPetkov\BearFrameworkAddons\Notifications\Notification::class
+            ])
+            ->defineProperty('preventDefault', [
+                'type' => 'bool',
+                'init' => function () {
+                    return false;
+                }
+            ]);
         $this->recipientID = $recipientID;
         $this->notification = $notification;
     }
-
 }

@@ -37,7 +37,7 @@ class Notifications
         if (self::$newNotificationCache === null) {
             self::$newNotificationCache = new Notification();
         }
-        $notification = clone(self::$newNotificationCache);
+        $notification = clone (self::$newNotificationCache);
         if ($title !== null) {
             $notification->title = $title;
         }
@@ -203,7 +203,7 @@ class Notifications
     public function getList(string $recipientID): \IvoPetkov\DataList
     {
         $app = App::get();
-        return new \IvoPetkov\DataList(function($context) use ($app, $recipientID) {
+        return new \IvoPetkov\DataList(function ($context) use ($app, $recipientID) {
             $result = [];
             $notificationDataItems = $app->data->getList()->filterBy('key', $this->getRecipientDataKeyPrefix($recipientID), 'startWith');
             foreach ($notificationDataItems as $notificationDataItem) {
@@ -271,5 +271,4 @@ class Notifications
         $notificationIDMD5 = md5($notificationID);
         return 'notifications/recipients/recipient/' . substr($recipientIDMD5, 0, 2) . '/' . substr($recipientIDMD5, 2, 2) . '/' . $recipientIDMD5 . '/notifications/notification/' . substr($notificationIDMD5, 0, 2) . '/' . substr($notificationIDMD5, 2, 2) . '/' . $notificationIDMD5 . '.json';
     }
-
 }

@@ -1,7 +1,11 @@
 {
     "name": "ivopetkov/notifications-bearframework-addon",
     "description": "Notifications addon for Bear Framework",
-    "keywords": ["notifications", "addon", "Bear Framework"],
+    "keywords": [
+        "notifications",
+        "addon",
+        "Bear Framework"
+    ],
     "homepage": "https://github.com/ivopetkov/notifications-bearframework-addon",
     "license": "MIT",
     "authors": [
@@ -14,13 +18,15 @@
     "require": {
         "php": ">=7.1",
         "bearframework/bearframework": "1.*",
-        "ivopetkov/data-object": "0.7.*"
+        "ivopetkov/data-object": "0.7.*|0.8.*"
     },
     "require-dev": {
         "bearframework/addon-tests": "0.3.*",
         "phpunit/phpunit": "7.*"
     },
     "autoload": {
-        "files": ["autoload.php"]
+        "files": [
+            "autoload.php"
+        ]
     }
 }

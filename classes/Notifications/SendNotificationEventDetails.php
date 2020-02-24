@@ -26,15 +26,13 @@ class SendNotificationEventDetails
     public function __construct(string $recipientID, \IvoPetkov\BearFrameworkAddons\Notifications\Notification $notification)
     {
         $this
-                ->defineProperty('recipientID', [
-                    'type' => 'string'
-                ])
-                ->defineProperty('notification', [
-                    'type' => \IvoPetkov\BearFrameworkAddons\Notifications\Notification::class
-                ])
-        ;
+            ->defineProperty('recipientID', [
+                'type' => 'string'
+            ])
+            ->defineProperty('notification', [
+                'type' => \IvoPetkov\BearFrameworkAddons\Notifications\Notification::class
+            ]);
         $this->recipientID = $recipientID;
         $this->notification = $notification;
     }
-
 }
