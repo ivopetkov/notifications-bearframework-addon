@@ -18,11 +18,10 @@
     "require": {
         "php": ">=7.1",
         "bearframework/bearframework": "1.*",
-        "ivopetkov/data-object": "0.7.*|0.8.*|0.9.*"
+        "ivopetkov/data-object": "1.*"
     },
     "require-dev": {
-        "bearframework/addon-tests": "0.3.*",
-        "phpunit/phpunit": "7.*"
+        "bearframework/addon-tests": "1.*"
     },
     "autoload": {
         "files": [
