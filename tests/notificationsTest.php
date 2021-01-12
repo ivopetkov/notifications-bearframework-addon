@@ -128,6 +128,24 @@ class NotificationsTest extends BearFramework\AddonTests\PHPUnitTestCase
         $this->assertTrue($app->notifications->getUnreadCount('recipient1') === 0);
     }
 
+    public function testDeleteOld()
+    {
+        $app = $this->getApp();
+
+        $this->assertTrue($app->notifications->getUnreadCount('recipient1') === 0);
+
+        $notification = $app->notifications->make('Hello 1');
+        $notification->maxAge = 3;
+        $app->notifications->send('recipient1', $notification);
+
+        $this->assertTrue($app->data->getList()->filterBy('key', 'notifications/recipients/recipient/', 'startWith')->count() === 1);
+        $app->notifications->deleteOld('recipient1');
+        $this->assertTrue($app->data->getList()->filterBy('key', 'notifications/recipients/recipient/', 'startWith')->count() === 1);
+        sleep(4);
+        $app->notifications->deleteOld('recipient1');
+        $this->assertTrue($app->data->getList()->filterBy('key', 'notifications/recipients/recipient/', 'startWith')->count() === 0);
+    }
+
     /**
      * 
      */
@@ -155,7 +173,7 @@ class NotificationsTest extends BearFramework\AddonTests\PHPUnitTestCase
         $this->assertTrue($app->notifications->getUnreadCount('recipient1') === 2);
 
         $list = $app->notifications->getList('recipient1')
-                ->sortBy('dateCreated', 'desc');
+            ->sortBy('dateCreated', 'desc');
         $this->assertTrue($list->count() === 2);
         $this->assertTrue($list[0]->title === 'Hello 3');
     }
@@ -170,19 +188,19 @@ class NotificationsTest extends BearFramework\AddonTests\PHPUnitTestCase
         $log = [];
 
         $app->notifications
-                ->addEventListener('beforeSendNotification', function(\IvoPetkov\BearFrameworkAddons\Notifications\BeforeSendNotificationEventDetails $details) use (&$log) {
-                    $log[] = 'before-send';
-                    $log[] = $details->recipientID;
-                    $log[] = $details->notification->title;
-                    if ($details->recipientID === 'recipient1') {
-                        $details->preventDefault = true;
-                    }
-                })
-                ->addEventListener('sendNotification', function(\IvoPetkov\BearFrameworkAddons\Notifications\SendNotificationEventDetails $details) use (&$log) {
-                    $log[] = 'send';
-                    $log[] = $details->recipientID;
-                    $log[] = $details->notification->title;
-                });
+            ->addEventListener('beforeSendNotification', function (\IvoPetkov\BearFrameworkAddons\Notifications\BeforeSendNotificationEventDetails $details) use (&$log) {
+                $log[] = 'before-send';
+                $log[] = $details->recipientID;
+                $log[] = $details->notification->title;
+                if ($details->recipientID === 'recipient1') {
+                    $details->preventDefault = true;
+                }
+            })
+            ->addEventListener('sendNotification', function (\IvoPetkov\BearFrameworkAddons\Notifications\SendNotificationEventDetails $details) use (&$log) {
+                $log[] = 'send';
+                $log[] = $details->recipientID;
+                $log[] = $details->notification->title;
+            });
 
         $notification = $app->notifications->make('Hello 1');
         $app->notifications->send('recipient1', $notification);
@@ -202,5 +220,4 @@ class NotificationsTest extends BearFramework\AddonTests\PHPUnitTestCase
             "Hello 2"
         ]);
     }
-
 }

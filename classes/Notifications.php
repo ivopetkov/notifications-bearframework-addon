@@ -198,6 +198,20 @@ class Notifications
     /**
      * 
      * @param string $recipientID
+     */
+    public function deleteOld(string $recipientID): void
+    {
+        $app = App::get();
+        $notificationDataItems = $app->data->getList()->filterBy('key', $this->getRecipientDataKeyPrefix($recipientID), 'startWith');
+        foreach ($notificationDataItems as $notificationDataItem) {
+            $notification = $this->constructNotificationFromRawData($notificationDataItem->value);
+            $this->deleteIfOld($recipientID, $notification);
+        }
+    }
+
+    /**
+     * 
+     * @param string $recipientID
      * @return \IvoPetkov\DataList
      */
     public function getList(string $recipientID): \IvoPetkov\DataList
