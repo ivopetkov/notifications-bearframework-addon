@@ -72,7 +72,7 @@ class Notifications
             }
         }
 
-        if (strlen($notification->type) > 0) {
+        if (strlen((string)$notification->type) > 0) {
             $otherNotifications = $this->getList($recipientID);
             foreach ($otherNotifications as $otherNotification) {
                 if ((string) $notification->type === (string) $otherNotification->type) {
