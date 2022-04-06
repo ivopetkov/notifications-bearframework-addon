@@ -30,7 +30,7 @@ class Notifications
      * 
      * @param ?string $title The notification title.
      * @param ?string $text The notification text.
-     * @return \BearFramework\Notifications\Notification
+     * @return \IvoPetkov\BearFrameworkAddons\Notifications\Notification
      */
     public function make(string $title = null, string $text = null): Notification
     {
@@ -51,7 +51,7 @@ class Notifications
      * Sends a notification.
      * 
      * @param string $recipientID The recipient ID.
-     * @param \BearFramework\Notifications\Notification $notification The notification to send.
+     * @param \IvoPetkov\BearFrameworkAddons\Notifications\Notification $notification The notification to send.
      * @return void No value is returned.
      * @throws \Exception
      */
