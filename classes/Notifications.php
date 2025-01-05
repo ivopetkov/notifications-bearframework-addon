@@ -32,7 +32,7 @@ class Notifications
      * @param ?string $text The notification text.
      * @return \IvoPetkov\BearFrameworkAddons\Notifications\Notification
      */
-    public function make(string $title = null, string $text = null): Notification
+    public function make(?string $title = null, ?string $text = null): Notification
     {
         if (self::$newNotificationCache === null) {
             self::$newNotificationCache = new Notification();

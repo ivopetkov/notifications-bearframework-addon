@@ -188,7 +188,7 @@ class NotificationsTest extends BearFramework\AddonTests\PHPUnitTestCase
         $log = [];
 
         $app->notifications
-            ->addEventListener('beforeSendNotification', function (\IvoPetkov\BearFrameworkAddons\Notifications\BeforeSendNotificationEventDetails $details) use (&$log) {
+            ->addEventListener('beforeSendNotification', function (\IvoPetkov\BearFrameworkAddons\Notifications\BeforeSendNotificationEventDetails $details) use (&$log): void {
                 $log[] = 'before-send';
                 $log[] = $details->recipientID;
                 $log[] = $details->notification->title;
@@ -196,7 +196,7 @@ class NotificationsTest extends BearFramework\AddonTests\PHPUnitTestCase
                     $details->preventDefault = true;
                 }
             })
-            ->addEventListener('sendNotification', function (\IvoPetkov\BearFrameworkAddons\Notifications\SendNotificationEventDetails $details) use (&$log) {
+            ->addEventListener('sendNotification', function (\IvoPetkov\BearFrameworkAddons\Notifications\SendNotificationEventDetails $details) use (&$log): void {
                 $log[] = 'send';
                 $log[] = $details->recipientID;
                 $log[] = $details->notification->title;
