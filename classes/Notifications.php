@@ -320,9 +320,9 @@ class Notifications
     {
         $app = App::get();
         $dataKey = $this->getChannelsDataKey($recipientID);
-        $data = $this->getSubscriptionsData($recipientID);
-        $data[$channel] = [time(), $data];
-        $app->data->setValue($dataKey, json_encode($data));
+        $subscriptionsData = $this->getSubscriptionsData($recipientID);
+        $subscriptionsData[$channel] = [time(), $data];
+        $app->data->setValue($dataKey, json_encode($subscriptionsData));
     }
 
     /**
