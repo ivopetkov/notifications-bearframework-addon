@@ -281,8 +281,116 @@ class Notifications
      */
     private function getNotificationDataKey(string $recipientID, string $notificationID): string
     {
-        $recipientIDMD5 = md5($recipientID);
         $notificationIDMD5 = md5($notificationID);
-        return 'notifications/recipients/recipient/' . substr($recipientIDMD5, 0, 2) . '/' . substr($recipientIDMD5, 2, 2) . '/' . $recipientIDMD5 . '/notifications/notification/' . substr($notificationIDMD5, 0, 2) . '/' . substr($notificationIDMD5, 2, 2) . '/' . $notificationIDMD5 . '.json';
+        return $this->getRecipientDataKeyPrefix($recipientID) . 'notifications/notification/' . substr($notificationIDMD5, 0, 2) . '/' . substr($notificationIDMD5, 2, 2) . '/' . $notificationIDMD5 . '.json';
+    }
+
+    /**
+     * 
+     * @param string $recipientID
+     * @return string
+     */
+    private function getChannelsDataKey(string $recipientID): string
+    {
+        $recipientIDMD5 = md5($recipientID);
+        return 'notifications/channels/' . substr($recipientIDMD5, 0, 2) . '/' . substr($recipientIDMD5, 2, 2) . '/' . $recipientIDMD5 . '.json';
+    }
+
+    /**
+     * 
+     * @param string $recipientID
+     * @return array
+     */
+    private function getSubscriptionsData(string $recipientID): array
+    {
+        $app = App::get();
+        $dataKey = $this->getChannelsDataKey($recipientID);
+        $value = $app->data->getValue($dataKey);
+        return $value !== null ? json_decode($value, true) : [];
+    }
+
+    /**
+     * 
+     * @param string $recipientID
+     * @param string $channel
+     * @param array $data
+     * @return void
+     */
+    public function subscribe(string $recipientID, string $channel, array $data = []): void
+    {
+        $app = App::get();
+        $dataKey = $this->getChannelsDataKey($recipientID);
+        $data = $this->getSubscriptionsData($recipientID);
+        $data[$channel] = [time(), $data];
+        $app->data->setValue($dataKey, json_encode($data));
+    }
+
+    /**
+     * 
+     * @param string $recipientID
+     * @param string $channel
+     * @return void
+     */
+    public function unsubscribe(string $recipientID, string $channel): void
+    {
+        $app = App::get();
+        $dataKey = $this->getChannelsDataKey($recipientID);
+        $data = $this->getSubscriptionsData($recipientID);
+        unset($data[$channel]);
+        if (empty($data)) {
+            $app->data->delete($dataKey);
+        } else {
+            $app->data->setValue($dataKey, json_encode($data));
+        }
+    }
+
+    /**
+     * 
+     * @param string $recipientID
+     * @param string $channel
+     * @return boolean
+     */
+    public function isSubscribed(string $recipientID, string $channel): bool
+    {
+        $data = $this->getSubscriptionsData($recipientID);
+        return isset($data[$channel]);
+    }
+
+    /**
+     * 
+     * @param string $recipientID
+     * @param string $channel
+     * @return array|null
+     */
+    public function getSubscriptionData(string $recipientID, string $channel): ?array
+    {
+        $data = $this->getSubscriptionsData($recipientID);
+        if (isset($data[$channel])) {
+            $channelData = $data[$channel];
+            return [
+                'date' => $channelData[0],
+                'data' => $channelData[1],
+            ];
+        }
+        return null;
+    }
+
+    /**
+     * 
+     * @param string $recipientID
+     * @return array
+     */
+    public function getSubscriptions(string $recipientID): array
+    {
+        $data = $this->getSubscriptionsData($recipientID);
+        $result = [];
+        foreach ($data as $channel => $channelData) {
+            $result[] = [
+                'channel' => $channel,
+                'date' => $channelData[0],
+                'data' => $channelData[1],
+            ];
+        }
+        return $result;
     }
 }
